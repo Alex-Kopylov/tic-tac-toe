@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "tic-tac-toe.h"
+#include "Board.h"
 
 #define MAX_LOADSTRING 100
 
@@ -145,8 +146,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
-            // TODO: Add any drawing code that uses hdc here...
-            EndPaint(hWnd, &ps);
+			Board board(hWnd, hdc, 100);
+			board.drawCentralizedBoard();
+			EndPaint(hWnd, &ps);
         }
         break;
     case WM_DESTROY:
