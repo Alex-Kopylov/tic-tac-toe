@@ -16,8 +16,7 @@
 #include <malloc.h>
 #include <memory.h>
 #include <tchar.h>
-
-#define CELL_SIZE 100 
+#define CELL_SIZE 100
 
 
 // reference additional headers your program requires here

@@ -2,15 +2,14 @@
 #include "Board.h"
 
 
-Board::Board(HWND hWnd, HDC hdc,const int CELL_SIZE)
+Board::Board(){	
+}
+
+ void Board::drawCentralizedBoard(HWND hWnd, HDC hdc)
 {
 	this->hWnd = hWnd;
 	this->hdc = hdc;
-	this->CELL_SIZE = CELL_SIZE;
-}
 
-void Board::drawCentralizedBoard()
-{
 	if (GetClientRect(hWnd, &rc))
 	{
 		width = rc.right - rc.left;
@@ -26,6 +25,5 @@ void Board::drawCentralizedBoard()
 	}
 }
 
-Board::~Board()
-{
+Board::~Board(){
 }

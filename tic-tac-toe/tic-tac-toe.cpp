@@ -6,7 +6,6 @@
 #include "Board.h"
 
 #define MAX_LOADSTRING 100
-
 // Global Variables:
 HINSTANCE hInst;                                // current instance
 WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
@@ -142,12 +141,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
         }
         break;
+	case WM_GETMINMAXINFO: 
+		{
+			MINMAXINFO * pMinMax = (MINMAXINFO*)lParam;
+			pMinMax->ptMinTrackSize.x = CELL_SIZE * 5;
+			pMinMax->ptMinTrackSize.y = CELL_SIZE * 5;
+		}
+		break;
     case WM_PAINT:
         {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
-			Board board(hWnd, hdc, 100);
-			board.drawCentralizedBoard();
+			Board board =  Board();
+			board.drawCentralizedBoard(hWnd, hdc);
 			EndPaint(hWnd, &ps);
         }
         break;
