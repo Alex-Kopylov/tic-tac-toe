@@ -152,8 +152,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
-			Board board =  Board();
-			board.drawCentralizedBoard(hWnd, hdc);
+			Board board =  Board(hWnd, hdc);
+			board.drawCentralizedBoard();
 			EndPaint(hWnd, &ps);
         }
         break;
