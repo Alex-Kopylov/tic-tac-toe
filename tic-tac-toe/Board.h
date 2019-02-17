@@ -2,8 +2,8 @@
 class Board
 {
 public:
-	Board(HWND hWnd, HDC hdc);
-	void drawCentralizedBoard();
+	Board();
+	void drawCentralizedBoard(HWND hWnd, HDC hdc);
 	
 	~Board();
 private:

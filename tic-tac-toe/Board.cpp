@@ -2,16 +2,16 @@
 #include "Board.h"
 
 
-Board::Board(HWND hWnd, HDC hdc){
-	this->hWnd = hWnd;
-	this->hdc = hdc;
+Board::Board(){
+	
 }
 
 
- void Board::drawCentralizedBoard()
+ void Board::drawCentralizedBoard(HWND hWnd, HDC hdc)
 {
+	 this->hWnd = hWnd;
+	 this->hdc = hdc;
 	
-
 	if (GetClientRect(hWnd, &rc))
 	{
 		width = rc.right - rc.left;

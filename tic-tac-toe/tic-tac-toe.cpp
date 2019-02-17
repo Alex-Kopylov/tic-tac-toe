@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "tic-tac-toe.h"
 #include "Board.h"
+#include "Cell.h"
 #include "windowsx.h" // Buttun mouse handler
 
 #define MAX_LOADSTRING 100
@@ -123,6 +124,14 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	//board handle
+	Board board = Board();
+
+	//cell handle
+	Cell cell = new Cell();
+	int xClickPos;
+	int yClickPos;
+
     switch (message)
     {
     case WM_COMMAND:
@@ -151,8 +160,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 
 	case WM_LBUTTONDOWN: {
-		int xPos = GET_X_LPARAM(lParam);
-		int yPos = GET_Y_LPARAM(lParam);
+			xClickPos = GET_X_LPARAM(lParam);
+			yClickPos = GET_Y_LPARAM(lParam);
 
 	}
 	break;
@@ -161,8 +170,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         {
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hWnd, &ps);
-			Board board =  Board(hWnd, hdc);
-			board.drawCentralizedBoard();
+			board.drawCentralizedBoard(hWnd, hdc);
 			EndPaint(hWnd, &ps);
         }
         break;
