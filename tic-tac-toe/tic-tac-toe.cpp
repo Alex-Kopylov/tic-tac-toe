@@ -125,10 +125,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	//board handle
-	Board board = Board();
-
+	Board board;
 	//cell handle
-	Cell cell = new Cell();
+	Cell cell = Cell();
 	int xClickPos;
 	int yClickPos;
 
@@ -163,6 +162,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			xClickPos = GET_X_LPARAM(lParam);
 			yClickPos = GET_Y_LPARAM(lParam);
 
+			int buttonIndex = cell.getCellNumberFromPoint(hWnd, xClickPos, yClickPos, board.getRectangle());
+			HDC hdc = GetDC(hWnd);
+			if (NULL != hdc) {
+				WCHAR temp[100];
+
+				wsprintf(temp, L"Index = %d", buttonIndex);
+				TextOut(hdc, xClickPos, yClickPos, temp, lstrlen(temp));
+				ReleaseDC(hWnd, hdc);
+			}
 	}
 	break;
 
