@@ -122,14 +122,15 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //  WM_DESTROY  - post a quit message and return
 //
 //
+	//board handle
+Board board;
+//cell handle
+Cell cell;
+int xClickPos;
+int yClickPos;
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	//board handle
-	Board board;
-	//cell handle
-	Cell cell = Cell();
-	int xClickPos;
-	int yClickPos;
+
 
     switch (message)
     {
@@ -157,6 +158,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			pMinMax->ptMinTrackSize.y = CELL_SIZE * 5;
 		}
 		break;
+	case WM_PAINT:
+	{
+		PAINTSTRUCT ps;
+		HDC hdc = BeginPaint(hWnd, &ps);
+		board.drawCentralizedBoard(hWnd, hdc);
+		EndPaint(hWnd, &ps);
+	}
+	break;
 
 	case WM_LBUTTONDOWN: {
 			xClickPos = GET_X_LPARAM(lParam);
@@ -173,16 +182,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 	}
 	break;
-
-    case WM_PAINT:
-        {
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hWnd, &ps);
-			board.drawCentralizedBoard(hWnd, hdc);
-			EndPaint(hWnd, &ps);
-        }
-        break;
-
     case WM_DESTROY:
         PostQuitMessage(0);
         break;

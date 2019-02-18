@@ -6,7 +6,7 @@ Board::Board(){
 }
 
 
-void Board::drawCentralizedBoard(HWND hWnd, HDC hdc)
+void Board::drawCentralizedBoard(HWND & hWnd, HDC hdc)
 {		
 	
 	if (GetClientRect(hWnd, &rc))
@@ -61,6 +61,3 @@ RECT Board::getRectangle()
 	 MoveToEx(*hdc, x1, y1, NULL);
 	 LineTo(*hdc, x2, y2);
  }
-
-Board::~Board(){
-}
