@@ -175,11 +175,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			HDC hdc = GetDC(hWnd);
 			if (NULL != hdc) {
 				WCHAR temp[100];
-
 				wsprintf(temp, L"Index = %d", buttonIndex);
 				TextOut(hdc, xClickPos, yClickPos, temp, lstrlen(temp));
 				ReleaseDC(hWnd, hdc);
 			}
+				
 	}
 	break;
     case WM_DESTROY:
