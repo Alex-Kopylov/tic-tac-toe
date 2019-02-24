@@ -165,7 +165,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		PAINTSTRUCT ps;
 		HDC hdc = BeginPaint(hWnd, &ps);
 		board.drawCentralizedBoard(hWnd, hdc);
+		for (int i = 0; i < 9; i++) {
+			if (game.whatInTheCell(i) != 0) {
+				FillRect(hdc, cell.getCellRectangle(hWnd, i, board.getRectangle()),
+					game.getBrush(game.whatInTheCell(i)));
+			}
+		}
 		EndPaint(hWnd, &ps);
+
 	}
 	break;
 

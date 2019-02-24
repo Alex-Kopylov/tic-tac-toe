@@ -20,7 +20,7 @@ void Game::nextTurn()
 
 void Game::makePlay(int index)
 {
-	gameboard[index] = player_turn;
+	gameboard[index] = this->player_turn;
 }
 
 bool Game::isThisCellEmpty(int index)
@@ -30,7 +30,17 @@ bool Game::isThisCellEmpty(int index)
 	return false;
 }
 
+int Game::whatInTheCell(int index)
+{
+	return gameboard[index];
+}
+
 HBRUSH Game::getBrush()
+{
+	return (this->player_turn == 1) ? brush_O : brush_X;
+}
+
+HBRUSH Game::getBrush(int player_turn)
 {
 	return (player_turn == 1) ? brush_O : brush_X;
 }

@@ -7,7 +7,9 @@ public:
 	void nextTurn();
 	void makePlay(int index);
 	bool isThisCellEmpty(int index);
+	int whatInTheCell(int index);
 	HBRUSH getBrush();
+	HBRUSH getBrush(int player_turn);
 	~Game();
 private:
 	HBRUSH brush_O = CreateSolidBrush(RGB(255,0,0));
