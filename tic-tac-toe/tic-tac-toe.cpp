@@ -5,6 +5,7 @@
 #include "tic-tac-toe.h"
 #include "Board.h"
 #include "Cell.h"
+#include "Game.h"
 #include "windowsx.h" // Buttun mouse handler
 
 #define MAX_LOADSTRING 100
@@ -21,9 +22,10 @@ INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 Board board;
 Cell cell;
+Game game;
 int xClickPos;
 int yClickPos;
-
+int player_turn = 1;
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
                      _In_ LPWSTR    lpCmdLine,
@@ -175,10 +177,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			int buttonIndex = cell.getCellNumberFromPoint(hWnd, xClickPos, yClickPos, board.getRectangle());
 			HDC hdc = GetDC(hWnd);
 			if (NULL != hdc) {
-				WCHAR temp[100];
-				wsprintf(temp, L"Index = %d", buttonIndex);
-				TextOut(hdc, xClickPos, yClickPos, temp, lstrlen(temp));
+				if (buttonIndex != -1) {
+					FillRect(hdc,
+						cell.getCellRectangle(hWnd, buttonIndex, board.getRectangle()),
+						(player_turn == 1) ? game.getBrush('O') : game.getBrush('X'));
+					player_turn = (player_turn == 1) ? 2 : 1;
+				}
 				ReleaseDC(hWnd, hdc);
+
 			}
 				
 	}

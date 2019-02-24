@@ -23,7 +23,7 @@ int Cell::getCellNumberFromPoint(HWND hWnd, int xPos, int yPos, RECT boardRect)
 	return -1; //outside gameboard
 }
 
-RECT Cell::getCellRectangle(HWND hWnd, int index, RECT boardRec)
+const RECT * Cell::getCellRectangle(HWND hWnd, int index, RECT boardRec)
 {
 	int y = index / 3; // row number
 	int x = index % 3; // column number
@@ -35,7 +35,7 @@ RECT Cell::getCellRectangle(HWND hWnd, int index, RECT boardRec)
 	SubRect.bottom = SubRect.top + CELL_SIZE;
 
 	
-	return SubRect;
+	return &SubRect;
 }
 
 //void CELL::
