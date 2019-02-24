@@ -176,7 +176,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			int buttonIndex = cell.getCellNumberFromPoint(hWnd, xClickPos, yClickPos, board.getRectangle());
 			HDC hdc = GetDC(hWnd);
 			if (NULL != hdc) {
-				if (buttonIndex != -1) {
+				if (buttonIndex != -1 && game.isThisCellEmpty(buttonIndex)) {
+					game.makePlay(buttonIndex);
 					FillRect(hdc,
 						cell.getCellRectangle(hWnd, buttonIndex, board.getRectangle()),
 						game.getBrush());

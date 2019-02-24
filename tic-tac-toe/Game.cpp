@@ -18,6 +18,18 @@ void Game::nextTurn()
 
 }
 
+void Game::makePlay(int index)
+{
+	gameboard[index] = player_turn;
+}
+
+bool Game::isThisCellEmpty(int index)
+{
+	if (gameboard[index] == 0)
+		return true;
+	return false;
+}
+
 HBRUSH Game::getBrush()
 {
 	return (player_turn == 1) ? brush_O : brush_X;
