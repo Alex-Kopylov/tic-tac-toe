@@ -188,7 +188,38 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					FillRect(hdc,
 						cell.getCellRectangle(hWnd, buttonIndex, board.getRectangle()),
 						game.getBrush());
-					game.nextTurn();
+					switch (game.getWinner()) {
+						case (0): {
+							game.nextTurn();
+						}
+						break;
+						case (1): {
+							MessageBox(hWnd,			
+								L"Player 1 is the Winner!",
+								L"Victory!",
+								MB_OK | MB_ICONINFORMATION);
+								
+							break;
+						}
+						case (2): {
+							MessageBox(hWnd,
+								L"Player 2 is the Winner!",
+								L"Victory!",
+								MB_OK | MB_ICONINFORMATION);
+
+							break;
+						}
+						break;
+						case (3): {
+							MessageBox(hWnd,
+								L"No one wins this time",
+								L"It's a draw!",
+								MB_OK | MB_ICONINFORMATION);
+
+							break;
+						}
+						break;
+					}
 				}
 				ReleaseDC(hWnd, hdc);
 

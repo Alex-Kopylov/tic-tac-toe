@@ -35,6 +35,23 @@ int Game::whatInTheCell(int index)
 	return gameboard[index];
 }
 
+int Game::getWinner()
+{
+	for (int i = 0; i < 24; i += 3) {
+		if (gameboard[win_conditions[i]] != 0 &&
+			gameboard[win_conditions[i]] == gameboard[win_conditions[i + 1]] &&
+			gameboard[win_conditions[i]] == gameboard[win_conditions[i + 2]]) {
+				//draw	
+			return gameboard[win_conditions[i]]; //winner
+		}
+	}
+	for (int i = 0; i < 9; i++) {
+		if (gameboard[i] == 0)
+			return 0; //empty cell
+	}
+	return 3; //draw
+}
+
 HBRUSH Game::getBrush()
 {
 	return (this->player_turn == 1) ? brush_O : brush_X;
