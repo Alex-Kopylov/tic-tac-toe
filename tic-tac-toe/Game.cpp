@@ -12,12 +12,15 @@ void Game::deleteBrushes()
 	DeleteObject(brush_X);
 }
 
-HBRUSH Game::getBrush(char brush)
+void Game::nextTurn()
 {
-	if (brush == 'O')
-		return brush_O;
+	player_turn = (player_turn == 1) ? 2 : 1;
 
-	return brush_X;
+}
+
+HBRUSH Game::getBrush()
+{
+	return (player_turn == 1) ? brush_O : brush_X;
 }
 
 

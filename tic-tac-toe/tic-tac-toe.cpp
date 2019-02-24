@@ -25,7 +25,6 @@ Cell cell;
 Game game;
 int xClickPos;
 int yClickPos;
-int player_turn = 1;
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
                      _In_ LPWSTR    lpCmdLine,
@@ -180,8 +179,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				if (buttonIndex != -1) {
 					FillRect(hdc,
 						cell.getCellRectangle(hWnd, buttonIndex, board.getRectangle()),
-						(player_turn == 1) ? game.getBrush('O') : game.getBrush('X'));
-					player_turn = (player_turn == 1) ? 2 : 1;
+						game.getBrush());
+					game.nextTurn();
 				}
 				ReleaseDC(hWnd, hdc);
 
@@ -190,6 +189,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	break;
     case WM_DESTROY:
+		game.deleteBrushes();
         PostQuitMessage(0);
         break;
     default:
