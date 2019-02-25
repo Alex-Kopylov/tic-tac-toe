@@ -20,7 +20,7 @@ void Game::nextTurn()
 
 void Game::makePlay(int index)
 {
-	gameboard[index] = this->player_turn;
+	gameboard[index] = player_turn;
 }
 
 bool Game::isThisCellEmpty(int index)
@@ -52,9 +52,18 @@ int Game::getWinner()
 	return 3; //draw
 }
 
+void Game::resetTheGame(HWND hWnd)
+{
+	player_turn = 1;
+	for (int i = 0; i < 9; i++)
+		gameboard[i] = 0;
+	InvalidateRect(hWnd, NULL, TRUE);
+	UpdateWindow(hWnd);
+}
+
 HBRUSH Game::getBrush()
 {
-	return (this->player_turn == 1) ? brush_O : brush_X;
+	return (player_turn == 1) ? brush_O : brush_X;
 }
 
 HBRUSH Game::getBrush(int player_turn)

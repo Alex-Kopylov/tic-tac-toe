@@ -142,6 +142,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             // Parse the menu selections:
             switch (wmId)
             {
+			case ID_NEWGAME: {
+				game.resetTheGame(hWnd);
+				break;
+			}
             case IDM_ABOUT:
                 DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
                 break;
@@ -198,7 +202,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 								L"Player 1 is the Winner!",
 								L"Victory!",
 								MB_OK | MB_ICONINFORMATION);
-								
+							
+							game.resetTheGame(hWnd);
+							
 							break;
 						}
 						case (2): {
@@ -206,7 +212,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 								L"Player 2 is the Winner!",
 								L"Victory!",
 								MB_OK | MB_ICONINFORMATION);
-
+							
+							game.resetTheGame(hWnd);
+							
 							break;
 						}
 						break;
@@ -215,7 +223,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 								L"No one wins this time",
 								L"It's a draw!",
 								MB_OK | MB_ICONINFORMATION);
-
+							
+							game.resetTheGame(hWnd);
+							
 							break;
 						}
 						break;
