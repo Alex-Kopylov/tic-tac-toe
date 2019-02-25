@@ -21,8 +21,8 @@ LRESULT CALLBACK    WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 
 Board board;
-Cell cell;
 Game game;
+Cell cell;
 int xClickPos;
 int yClickPos;
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
@@ -120,6 +120,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
 
 
+
 //
 //  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
 //
@@ -131,9 +132,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-
-
+{	
     switch (message)
     {
     case WM_COMMAND:
@@ -143,7 +142,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             switch (wmId)
             {
 			case ID_NEWGAME: {
-				game.resetTheGame(hWnd);
+				game.resetTheGame();
+				board.clearBoard(hWnd);
 				break;
 			}
             case IDM_ABOUT:
@@ -169,10 +169,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		PAINTSTRUCT ps;
 		HDC hdc = BeginPaint(hWnd, &ps);
 		board.drawCentralizedBoard(hWnd, hdc);
+		
 		for (int i = 0; i < 9; i++) {
 			if (game.whatInTheCell(i) != 0) {
-				FillRect(hdc, cell.getCellRectangle(hWnd, i, board.getRectangle()),
-					game.getBrush(game.whatInTheCell(i)));
+				int cell_xLeft = cell.getCellRectangle(hWnd, i, board.getRectangle())->left;
+				int cell_yTop = cell.getCellRectangle(hWnd, i, board.getRectangle())->top;
+				cell.markTheCell(hdc, hWnd, game.whatInTheCell(i), cell_xLeft, cell_yTop);
 			}
 		}
 		EndPaint(hWnd, &ps);
@@ -189,9 +191,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (NULL != hdc) {
 				if (buttonIndex != -1 && game.isThisCellEmpty(buttonIndex)) {
 					game.makePlay(buttonIndex);
-					FillRect(hdc,
-						cell.getCellRectangle(hWnd, buttonIndex, board.getRectangle()),
-						game.getBrush());
+					int player_turn = game.getPlayerTurn();
+					int cell_xLeft = cell.getCellRectangle(hWnd, buttonIndex, board.getRectangle())->left;
+					int cell_yTop = cell.getCellRectangle(hWnd, buttonIndex, board.getRectangle())->top;
+					cell.markTheCell(hdc,hWnd, player_turn, cell_xLeft, cell_yTop);
 					switch (game.getWinner()) {
 						case (0): {
 							game.nextTurn();
@@ -203,7 +206,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 								L"Victory!",
 								MB_OK | MB_ICONINFORMATION);
 							
-							game.resetTheGame(hWnd);
+							game.resetTheGame();
+							board.clearBoard(hWnd);
 							
 							break;
 						}
@@ -213,7 +217,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 								L"Victory!",
 								MB_OK | MB_ICONINFORMATION);
 							
-							game.resetTheGame(hWnd);
+							game.resetTheGame();
+							board.clearBoard(hWnd);
 							
 							break;
 						}
@@ -224,7 +229,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 								L"It's a draw!",
 								MB_OK | MB_ICONINFORMATION);
 							
-							game.resetTheGame(hWnd);
+							game.resetTheGame();
+							board.clearBoard(hWnd);
 							
 							break;
 						}
@@ -238,7 +244,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	break;
     case WM_DESTROY:
-		game.deleteBrushes();
+		cell.deleteBrushes();
         PostQuitMessage(0);
         break;
     default:

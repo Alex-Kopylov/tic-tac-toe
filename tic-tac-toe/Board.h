@@ -5,6 +5,7 @@ public:
 	Board();
 	void drawCentralizedBoard(HWND & hWnd, HDC hdc);
 	const RECT  getRectangle();
+	void clearBoard(HWND hWnd);
 
 private:
 	void drawGrid(HDC * hdc);

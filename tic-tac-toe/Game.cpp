@@ -6,12 +6,6 @@ Game::Game()
 {
 }
 
-void Game::deleteBrushes()
-{
-	DeleteObject(brush_O);
-	DeleteObject(brush_X);
-}
-
 void Game::nextTurn()
 {
 	player_turn = (player_turn == 1) ? 2 : 1;
@@ -52,25 +46,17 @@ int Game::getWinner()
 	return 3; //draw
 }
 
-void Game::resetTheGame(HWND hWnd)
+void Game::resetTheGame()
 {
 	player_turn = 1;
 	for (int i = 0; i < 9; i++)
 		gameboard[i] = 0;
-	InvalidateRect(hWnd, NULL, TRUE);
-	UpdateWindow(hWnd);
 }
 
-HBRUSH Game::getBrush()
+int Game::getPlayerTurn()
 {
-	return (player_turn == 1) ? brush_O : brush_X;
+	return player_turn;
 }
-
-HBRUSH Game::getBrush(int player_turn)
-{
-	return (player_turn == 1) ? brush_O : brush_X;
-}
-
 
 Game::~Game()
 {

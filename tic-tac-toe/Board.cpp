@@ -34,6 +34,12 @@ const RECT Board::getRectangle()
 	 return gameboardRectangle;
  }
 
+void Board::clearBoard(HWND hWnd)
+{
+	InvalidateRect(hWnd, NULL, TRUE);
+	UpdateWindow(hWnd);
+}
+
  void Board::drawGrid(HDC * hdc) {
 	 for (int i = 0; i < 4; i++) {
 		 //Draw vertical lines
