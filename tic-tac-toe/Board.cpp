@@ -40,6 +40,17 @@ void Board::clearBoard(HWND hWnd)
 	UpdateWindow(hWnd);
 }
 
+void Board::drawCurrentGameOnTheBoard(Cell cell, HWND hWnd, HDC hdc, std::vector<int> gameboard)
+{
+	for (int i = 0; i < 9; i++) {
+		if (gameboard[i] != 0) {
+			int cell_xLeft = cell.getCellRectangle(hWnd, i, getRectangle())->left;
+			int cell_yTop = cell.getCellRectangle(hWnd, i, getRectangle())->top;
+			cell.markTheCell(hdc, hWnd, gameboard[i], cell_xLeft, cell_yTop);
+		}
+	}
+}
+
  void Board::drawGrid(HDC * hdc) {
 	 for (int i = 0; i < 4; i++) {
 		 //Draw vertical lines

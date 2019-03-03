@@ -23,8 +23,6 @@ INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 Board board;
 Game game;
 Cell cell;
-int xClickPos;
-int yClickPos;
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
                      _In_ LPWSTR    lpCmdLine,
@@ -169,40 +167,33 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		PAINTSTRUCT ps;
 		HDC hdc = BeginPaint(hWnd, &ps);
 		board.drawCentralizedBoard(hWnd, hdc);
-		
-		for (int i = 0; i < 9; i++) {
-			if (game.whatInTheCell(i) != 0) {
-				int cell_xLeft = cell.getCellRectangle(hWnd, i, board.getRectangle())->left;
-				int cell_yTop = cell.getCellRectangle(hWnd, i, board.getRectangle())->top;
-				cell.markTheCell(hdc, hWnd, game.whatInTheCell(i), cell_xLeft, cell_yTop);
-			}
-		}
+		board.drawCurrentGameOnTheBoard(cell, hWnd, hdc, game.getGameBoard());
 		EndPaint(hWnd, &ps);
 
 	}
 	break;
 
 	case WM_LBUTTONDOWN: {
-			xClickPos = GET_X_LPARAM(lParam);
-			yClickPos = GET_Y_LPARAM(lParam);
+			int xClickPos = GET_X_LPARAM(lParam);
+			int yClickPos = GET_Y_LPARAM(lParam);
 
 			int buttonIndex = cell.getCellNumberFromPoint(hWnd, xClickPos, yClickPos, board.getRectangle());
 			HDC hdc = GetDC(hWnd);
 			if (NULL != hdc) {
 				if (buttonIndex != -1 && game.isThisCellEmpty(buttonIndex)) {
-					game.makePlay(buttonIndex);
-					int player_turn = game.getPlayerTurn();
 					int cell_xLeft = cell.getCellRectangle(hWnd, buttonIndex, board.getRectangle())->left;
 					int cell_yTop = cell.getCellRectangle(hWnd, buttonIndex, board.getRectangle())->top;
-					cell.markTheCell(hdc,hWnd, player_turn, cell_xLeft, cell_yTop);
+					cell.markTheCell(hdc,hWnd, game.getPlayerTurn(), cell_xLeft, cell_yTop);
+					game.makePlay(buttonIndex);
 					switch (game.getWinner()) {
 						case (0): {
-							game.nextTurn();
+							board.drawCurrentGameOnTheBoard(cell, hWnd, hdc, game.getGameBoard());
 						}
 						break;
 						case (1): {
+							board.drawCurrentGameOnTheBoard(cell, hWnd, hdc, game.getGameBoard());
 							MessageBox(hWnd,			
-								L"Player 1 is the Winner!",
+								L"Player [O] is the Winner!",
 								L"Victory!",
 								MB_OK | MB_ICONINFORMATION);
 							
@@ -212,8 +203,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 							break;
 						}
 						case (2): {
+							board.drawCurrentGameOnTheBoard(cell, hWnd, hdc, game.getGameBoard());
 							MessageBox(hWnd,
-								L"Player 2 is the Winner!",
+								L"Player [X] is the Winner!",
 								L"Victory!",
 								MB_OK | MB_ICONINFORMATION);
 							
@@ -224,6 +216,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 						}
 						break;
 						case (3): {
+							board.drawCurrentGameOnTheBoard(cell, hWnd, hdc, game.getGameBoard());
 							MessageBox(hWnd,
 								L"No one wins this time",
 								L"It's a draw!",
