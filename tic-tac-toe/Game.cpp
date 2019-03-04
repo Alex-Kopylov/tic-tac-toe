@@ -1,10 +1,9 @@
 #include "stdafx.h"
 #include "Game.h"
-#include <algorithm>
-#include <ctime>
 
 Game::Game()
 {
+	
 }
 
 void Game::nextTurn()
@@ -38,7 +37,6 @@ std::vector<int> Game::getGameBoard()
 
 int Game::getWinner()
 {
-	autoStep();
 	for (int i = 0; i < 24; i += 3) {
 		if (gameboard[win_conditions[i]] != 0 &&
 			gameboard[win_conditions[i]] == gameboard[win_conditions[i + 1]] &&
@@ -64,30 +62,30 @@ void Game::resetTheGame()
 
 void Game::autoStep()
 {
-	for (int i = 0; i < 24; i += 3) {
-		std::vector<int> winCondition = { gameboard[win_conditions[i]], gameboard[win_conditions[i + 1]], gameboard[win_conditions[i + 2]] };
-		if (std::count(winCondition.begin(), winCondition.end(), 0) < 2)
-		{
-			//Try to win
-			if (winCondition[0] == 0)
-				if (winCondition[1] == winCondition[2] && winCondition[1] == getPlayerTurn()) {
-					makePlay(win_conditions[i]);
-					return;
-				}
-			if (winCondition[1] == 0)
-				if (winCondition[0] == winCondition[2] && winCondition[0] == getPlayerTurn()) {
-					makePlay(win_conditions[i + 1]);
-					return;
-				}
-			if (winCondition[2] == 0)
-				if (winCondition[0] == winCondition[1] && winCondition[0] == getPlayerTurn()) {
-					makePlay(win_conditions[i + 2]);
-					return;
-				}
-		}
-		else 
-			continue;
-	}
+	//for (int i = 0; i < 24; i += 3) {
+	//	std::vector<int> winCondition = { gameboard[win_conditions[i]], gameboard[win_conditions[i + 1]], gameboard[win_conditions[i + 2]] };
+	//	if (std::count(winCondition.begin(), winCondition.end(), 0) < 2)
+	//	{
+	//		//Try to win
+	//		if (winCondition[0] == 0)
+	//			if (winCondition[1] == winCondition[2] && winCondition[1] == getPlayerTurn()) {
+	//				makePlay(win_conditions[i]);
+	//				return;
+	//			}
+	//		if (winCondition[1] == 0)
+	//			if (winCondition[0] == winCondition[2] && winCondition[0] == getPlayerTurn()) {
+	//				makePlay(win_conditions[i + 1]);
+	//				return;
+	//			}
+	//		if (winCondition[2] == 0)
+	//			if (winCondition[0] == winCondition[1] && winCondition[0] == getPlayerTurn()) {
+	//				makePlay(win_conditions[i + 2]);
+	//				return;
+	//			}
+	//	}
+	//	else 
+	//		continue;
+	//}
 	for (int i = 0; i < 24; i += 3) {
 		std::vector<int> winCondition = { gameboard[win_conditions[i]], gameboard[win_conditions[i + 1]], gameboard[win_conditions[i + 2]] };
 		if (std::count(winCondition.begin(), winCondition.end(), 0) < 2)
@@ -122,9 +120,11 @@ void Game::randomStep() {
 		if (gameboard[i] == 0) {
 			emptyCells.push_back(i);
 		}
-	}
-	srand(time(0));
-	int randomEmptyCell = emptyCells[rand() % emptyCells.size()];
+	}	
+	if (emptyCells.size() == 0)
+		return;
+	std::uniform_int_distribution<int> uid(0, emptyCells.size()-1);
+	int randomEmptyCell = emptyCells[uid(gen)];
 	makePlay(randomEmptyCell);
 }
 int Game::getPlayerTurn()
