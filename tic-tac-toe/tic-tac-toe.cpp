@@ -23,6 +23,7 @@ INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 Board board;
 Game game;
 Cell cell;
+int X_wins = 0, O_wins = 0, draws = 0;
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
                      _In_ LPWSTR    lpCmdLine,
@@ -133,116 +134,86 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {	
     switch (message)
     {
-    case WM_COMMAND:
-        {
-            int wmId = LOWORD(wParam);
-            // Parse the menu selections:
-            switch (wmId)
-            {
-			case ID_NEWGAME: {
-				game.resetTheGame();
-				board.clearBoard(hWnd);
-				break;
+		case WM_COMMAND:
+			{
+				int wmId = LOWORD(wParam);
+				// Parse the menu selections:
+				switch (wmId)
+				{
+				case ID_START_GAME: {
+					HDC hdc = GetDC(hWnd);
+					board.drawCentralizedBoard(hWnd, hdc);
+					for (int i = 0; i < 100; i++) {
+						bool flag = true;
+
+						do {
+							game.autoStep();
+							board.drawCurrentGameOnTheBoard(cell, hWnd, hdc, game.getGameBoard());
+							switch (game.getWinner()) {
+							case (0): {
+								break;
+							}
+									  break;
+							case (1): {
+								O_wins++;
+								flag = false;
+							}
+									  break;
+							case (2): {
+								X_wins++;
+								flag = false;
+							}
+									  break;
+							case (3): {
+								draws++;
+								flag = false;
+							}
+									  break;
+
+							}
+						} while (flag);
+						game.resetTheGame();
+						board.clearBoard(hWnd);
+					}
+
+					break;
+				}
+				case IDM_ABOUT:
+					DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+					break;
+				case IDM_EXIT:
+					DestroyWindow(hWnd);
+					break;
+				default:
+					return DefWindowProc(hWnd, message, wParam, lParam);
+				}
 			}
-            case IDM_ABOUT:
-                DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-                break;
-            case IDM_EXIT:
-                DestroyWindow(hWnd);
-                break;
-            default:
-                return DefWindowProc(hWnd, message, wParam, lParam);
-            }
-        }
-        break;
-	case WM_GETMINMAXINFO: 
+			break;
+		case WM_GETMINMAXINFO: 
+			{
+				MINMAXINFO * pMinMax = (MINMAXINFO*)lParam;
+				pMinMax->ptMinTrackSize.x = CELL_SIZE * 5;
+				pMinMax->ptMinTrackSize.y = CELL_SIZE * 5;
+			}
+			break;
+
+		case WM_PAINT:
 		{
-			MINMAXINFO * pMinMax = (MINMAXINFO*)lParam;
-			pMinMax->ptMinTrackSize.x = CELL_SIZE * 5;
-			pMinMax->ptMinTrackSize.y = CELL_SIZE * 5;
+			PAINTSTRUCT ps;
+			HDC hdc = BeginPaint(hWnd, &ps);
+			board.drawCentralizedBoard(hWnd, hdc);
+			board.drawCurrentGameOnTheBoard(cell, hWnd, hdc, game.getGameBoard());
+			EndPaint(hWnd, &ps);
 		}
 		break;
-	case WM_PAINT:
-	{
-		PAINTSTRUCT ps;
-		HDC hdc = BeginPaint(hWnd, &ps);
-		board.drawCentralizedBoard(hWnd, hdc);
-		board.drawCurrentGameOnTheBoard(cell, hWnd, hdc, game.getGameBoard());
-		EndPaint(hWnd, &ps);
 
-	}
-	break;
-
-	case WM_LBUTTONDOWN: {
-			int xClickPos = GET_X_LPARAM(lParam);
-			int yClickPos = GET_Y_LPARAM(lParam);
-
-			int buttonIndex = cell.getCellNumberFromPoint(hWnd, xClickPos, yClickPos, board.getRectangle());
-			HDC hdc = GetDC(hWnd);
-			if (NULL != hdc) {
-				if (buttonIndex != -1 && game.isThisCellEmpty(buttonIndex)) {
-					int cell_xLeft = cell.getCellRectangle(hWnd, buttonIndex, board.getRectangle())->left;
-					int cell_yTop = cell.getCellRectangle(hWnd, buttonIndex, board.getRectangle())->top;
-					cell.markTheCell(hdc,hWnd, game.getPlayerTurn(), cell_xLeft, cell_yTop);
-					game.makePlay(buttonIndex);
-					switch (game.getWinner()) {
-						case (0): {
-							board.drawCurrentGameOnTheBoard(cell, hWnd, hdc, game.getGameBoard());
-						}
-						break;
-						case (1): {
-							board.drawCurrentGameOnTheBoard(cell, hWnd, hdc, game.getGameBoard());
-							MessageBox(hWnd,			
-								L"Player [O] is the Winner!",
-								L"Victory!",
-								MB_OK | MB_ICONINFORMATION);
-							
-							game.resetTheGame();
-							board.clearBoard(hWnd);
-							
-							break;
-						}
-						case (2): {
-							board.drawCurrentGameOnTheBoard(cell, hWnd, hdc, game.getGameBoard());
-							MessageBox(hWnd,
-								L"Player [X] is the Winner!",
-								L"Victory!",
-								MB_OK | MB_ICONINFORMATION);
-							
-							game.resetTheGame();
-							board.clearBoard(hWnd);
-							
-							break;
-						}
-						break;
-						case (3): {
-							board.drawCurrentGameOnTheBoard(cell, hWnd, hdc, game.getGameBoard());
-							MessageBox(hWnd,
-								L"No one wins this time",
-								L"It's a draw!",
-								MB_OK | MB_ICONINFORMATION);
-							
-							game.resetTheGame();
-							board.clearBoard(hWnd);
-							
-							break;
-						}
-						break;
-					}
-				}
-				ReleaseDC(hWnd, hdc);
-
-			}
-				
-	}
-	break;
-    case WM_DESTROY:
-		cell.deleteBrushes();
-        PostQuitMessage(0);
-        break;
-    default:
-        return DefWindowProc(hWnd, message, wParam, lParam);
-    }
+		case WM_DESTROY:
+			cell.deleteBrushes();
+			PostQuitMessage(0);
+			break;
+		default:
+			return DefWindowProc(hWnd, message, wParam, lParam);
+		}
     return 0;
 }
 

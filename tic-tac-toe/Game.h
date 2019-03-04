@@ -1,5 +1,8 @@
 #pragma once
 #include <vector>
+#include <algorithm>
+#include <random> 
+#include <ctime>
 class Game
 {
 public:
@@ -25,5 +28,6 @@ private:
 						0,4,8,
 						2,4,6, };
 	void randomStep();
+	std::mt19937 gen{ std::random_device()() };
 };
 

@@ -17,7 +17,7 @@
 #define X_ICON                          141
 #define ID_FILE_NEWGAME                 32771
 #define ID_NEW_GAME                     32772
-#define ID_NEWGAME                      32773
+#define ID_START_GAME                      32773
 #define IDC_STATIC                      -1
 
 // Next default values for new objects
