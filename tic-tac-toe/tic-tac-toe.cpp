@@ -6,6 +6,7 @@
 #include "Board.h"
 #include "Cell.h"
 #include "Game.h"
+#include <string>
 #include "windowsx.h" // Buttun mouse handler
 
 #define MAX_LOADSTRING 100
@@ -143,7 +144,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				case ID_START_GAME: {
 					HDC hdc = GetDC(hWnd);
 					board.drawCentralizedBoard(hWnd, hdc);
-					for (int i = 0; i < 100; i++) {
+					for (int i = 0; i < 10; i++) {
+						POINT a, b;
+						a.x = 0;
+						a.y = 0;
+
+						b.x = 500;
+						b.y = 500;
 						bool flag = true;
 
 						do {
@@ -176,6 +183,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 						board.clearBoard(hWnd);
 					}
 
+					std::string resultSting =
+						"X wins: " +
+						std::to_string(X_wins) + "\n" +
+						"O wins: " +
+						std::to_string(O_wins) + "\n" +
+						"Draws: " +
+						std::to_string(draws);
+					MessageBox(hWnd, std::wstring(resultSting.begin(), resultSting.end()).c_str(), L"Results", MB_OK | MB_ICONASTERISK );
 					break;
 				}
 				case IDM_ABOUT:
@@ -235,4 +250,26 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     }
     return (INT_PTR)FALSE;
+}
+
+void screenshot(POINT a, POINT b)
+{
+	// copy screen to bitmap
+	HDC     hScreen = GetDC(NULL);
+	HDC     hDC = CreateCompatibleDC(hScreen);
+	HBITMAP hBitmap = CreateCompatibleBitmap(hScreen, abs(b.x - a.x), abs(b.y - a.y));
+	HGDIOBJ old_obj = SelectObject(hDC, hBitmap);
+	BOOL    bRet = BitBlt(hDC, 0, 0, abs(b.x - a.x), abs(b.y - a.y), hScreen, a.x, a.y, SRCCOPY);
+
+	// save bitmap to clipboard
+	OpenClipboard(NULL);
+	EmptyClipboard();
+	SetClipboardData(CF_BITMAP, hBitmap);
+	CloseClipboard();
+
+	// clean up
+	SelectObject(hDC, old_obj);
+	DeleteDC(hDC);
+	ReleaseDC(NULL, hScreen);
+	DeleteObject(hBitmap);
 }
