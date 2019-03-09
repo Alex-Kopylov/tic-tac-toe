@@ -1,0 +1,40 @@
+Game ¹ 1 [Draw]
+XOX
+XOO
+OXO
+Game ¹ 2 [X win]
+O X
+XXO
+XOO
+Game ¹ 3 [X win]
+O X
+OXO
+XOX
+Game ¹ 4 [Draw]
+OXO
+OXX
+XOO
+Game ¹ 5 [O win]
+O O
+ OX
+XXO
+Game ¹ 6 [Draw]
+XOO
+OXX
+XOO
+Game ¹ 7 [Draw]
+XOO
+OXX
+OXO
+Game ¹ 8 [O win]
+OX 
+XOO
+ XO
+Game ¹ 9 [Draw]
+OOX
+XOO
+OXX
+Game ¹ 10 [Draw]
+XOX
+OXO
+OXO
