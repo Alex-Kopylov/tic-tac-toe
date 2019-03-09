@@ -1,4 +1,4 @@
-// tic-tac-toe.cpp : Defines the entry point for the application.
+﻿// tic-tac-toe.cpp : Defines the entry point for the application.
 //
 
 #include "stdafx.h"
@@ -7,6 +7,8 @@
 #include "Cell.h"
 #include "Game.h"
 #include <string>
+#include <fstream>
+#include <vector>
 #include "windowsx.h" // Buttun mouse handler
 
 #define MAX_LOADSTRING 100
@@ -25,6 +27,46 @@ Board board;
 Game game;
 Cell cell;
 int X_wins = 0, O_wins = 0, draws = 0;
+
+void writeDataInFile(std::vector<int> gameboard, int gameNumber,int winner) {
+	std::ofstream file;
+	file.open("output_file.txt", std::ios::app);
+	file << "Game № " << gameNumber+1;
+	switch (winner) {
+	case (1): 
+		file << " [O win]";
+		break;
+	case (2):
+		file << " [X win]";
+		break;
+	case (3):
+		file << " [Draw]";
+		break;
+	}
+	file << std::endl;
+	for (int i = 0; i < 9; i++) {
+		switch (gameboard[i]) {
+		case 0:
+			file << " ";
+			break;
+		case 1:
+			file << "O";
+			break;
+		case 2:
+			file << "X";
+			break;
+		}
+		
+		if(i==2||i==5||i==8)
+			file << std::endl;
+	}
+	file.close();
+	/*    ___
+	   |   |
+	   |   |
+	   |XOO|
+		‾‾‾*/
+}
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
                      _In_ LPWSTR    lpCmdLine,
@@ -179,6 +221,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 							}
 						} while (flag);
+						writeDataInFile(game.getGameBoard(),i, game.getWinner());
 						game.resetTheGame();
 						board.clearBoard(hWnd);
 					}
