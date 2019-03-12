@@ -9,6 +9,8 @@
 #include <string>
 #include <fstream>
 #include <vector>
+#include <thread>
+#include <mutex>
 #include "windowsx.h" // Buttun mouse handler
 
 #define MAX_LOADSTRING 100
@@ -26,7 +28,48 @@ INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 Board board;
 Game game;
 Cell cell;
+
 int X_wins = 0, O_wins = 0, draws = 0;
+std::vector<std::thread> players_thrades;
+std::recursive_timed_mutex g_lock;
+
+void thread_play(Game &game, Board  &board, Cell  &cell, HWND hWnd, HDC hdc) {
+	if(!(g_lock.try_lock()))
+		return;
+	game.autoStep();
+	board.drawCurrentGameOnTheBoard(cell, hWnd, hdc, game.getGameBoard());
+	switch (game.getWinner()) {
+	case (0): {
+		if (std::this_thread::get_id() == players_thrades[0].get_id() && players_thrades[1].joinable()) {
+			g_lock.unlock();
+			players_thrades[1].join();
+		}
+			else
+				if (players_thrades[0].joinable()) {
+					g_lock.unlock();
+					players_thrades[0].join();
+				}
+	}
+			  break;
+	case (1): {
+		O_wins++;
+		return;
+	}
+			  break;
+	case (2): {
+		X_wins++;
+		return;
+	}
+			  break;
+	case (3): {
+		draws++;
+		return;
+	}
+			  break;
+
+	}
+
+}
 
 void writeDataInFile(std::vector<int> gameboard, int gameNumber,int winner) {
 	std::ofstream file;
@@ -186,41 +229,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				case ID_START_GAME: {
 					HDC hdc = GetDC(hWnd);
 					board.drawCentralizedBoard(hWnd, hdc);
+					std::thread thread_O(thread_play, std::ref(game), std::ref(board), std::ref(cell),hWnd,hdc);
+					std::thread thread_X(thread_play, std::ref(game), std::ref(board), std::ref(cell), hWnd, hdc);
+					players_thrades.push_back(std::move(thread_O));
+					players_thrades.push_back(std::move(thread_X));
 					for (int i = 0; i < 10; i++) {
-						POINT a, b;
-						a.x = 0;
-						a.y = 0;
-
-						b.x = 500;
-						b.y = 500;
-						bool flag = true;
-
-						do {
-							game.autoStep();
-							board.drawCurrentGameOnTheBoard(cell, hWnd, hdc, game.getGameBoard());
-							switch (game.getWinner()) {
-							case (0): {
-								break;
-							}
-									  break;
-							case (1): {
-								O_wins++;
-								flag = false;
-							}
-									  break;
-							case (2): {
-								X_wins++;
-								flag = false;
-							}
-									  break;
-							case (3): {
-								draws++;
-								flag = false;
-							}
-									  break;
-
-							}
-						} while (flag);
+						players_thrades[0].join();
 						writeDataInFile(game.getGameBoard(),i, game.getWinner());
 						game.resetTheGame();
 						board.clearBoard(hWnd);
@@ -293,26 +307,4 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     }
     return (INT_PTR)FALSE;
-}
-
-void screenshot(POINT a, POINT b)
-{
-	// copy screen to bitmap
-	HDC     hScreen = GetDC(NULL);
-	HDC     hDC = CreateCompatibleDC(hScreen);
-	HBITMAP hBitmap = CreateCompatibleBitmap(hScreen, abs(b.x - a.x), abs(b.y - a.y));
-	HGDIOBJ old_obj = SelectObject(hDC, hBitmap);
-	BOOL    bRet = BitBlt(hDC, 0, 0, abs(b.x - a.x), abs(b.y - a.y), hScreen, a.x, a.y, SRCCOPY);
-
-	// save bitmap to clipboard
-	OpenClipboard(NULL);
-	EmptyClipboard();
-	SetClipboardData(CF_BITMAP, hBitmap);
-	CloseClipboard();
-
-	// clean up
-	SelectObject(hDC, old_obj);
-	DeleteDC(hDC);
-	ReleaseDC(NULL, hScreen);
-	DeleteObject(hBitmap);
 }
