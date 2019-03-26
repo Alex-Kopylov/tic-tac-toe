@@ -30,45 +30,21 @@ Game game;
 Cell cell;
 
 int X_wins = 0, O_wins = 0, draws = 0;
-std::vector<std::thread> players_thrades;
-std::recursive_timed_mutex g_lock;
+HANDLE players_thrades[2], mutex;
 
-void thread_play(Game &game, Board  &board, Cell  &cell, HWND hWnd, HDC hdc) {
-	if(!(g_lock.try_lock()))
-		return;
-	game.autoStep();
-	board.drawCurrentGameOnTheBoard(cell, hWnd, hdc, game.getGameBoard());
-	switch (game.getWinner()) {
-	case (0): {
-		if (std::this_thread::get_id() == players_thrades[0].get_id() && players_thrades[1].joinable()) {
-			g_lock.unlock();
-			players_thrades[1].join();
-		}
-			else
-				if (players_thrades[0].joinable()) {
-					g_lock.unlock();
-					players_thrades[0].join();
-				}
-	}
-			  break;
-	case (1): {
-		O_wins++;
-		return;
-	}
-			  break;
-	case (2): {
-		X_wins++;
-		return;
-	}
-			  break;
-	case (3): {
-		draws++;
-		return;
-	}
-			  break;
+typedef struct DATAFORTHREAD {
+	Game game;
+} DATAFORTHREAD, *P_DATAFORTHREAD;
 
+DWORD WINAPI  thread_play(LPVOID lpParam) {
+	Game game = ((P_DATAFORTHREAD)lpParam)->game;
+	while (1) {
+		WaitForSingleObject(mutex, INFINITE);
+		game.autoStep();
+		ReleaseMutex(mutex);
+		if (game.getWinner())
+			return 0;
 	}
-
 }
 
 void writeDataInFile(std::vector<int> gameboard, int gameNumber,int winner) {
@@ -229,12 +205,14 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				case ID_START_GAME: {
 					HDC hdc = GetDC(hWnd);
 					board.drawCentralizedBoard(hWnd, hdc);
-					std::thread thread_O(thread_play, std::ref(game), std::ref(board), std::ref(cell),hWnd,hdc);
-					std::thread thread_X(thread_play, std::ref(game), std::ref(board), std::ref(cell), hWnd, hdc);
-					players_thrades.push_back(std::move(thread_O));
-					players_thrades.push_back(std::move(thread_X));
+
+					P_DATAFORTHREAD p_toStructWithGameObject = (P_DATAFORTHREAD)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
+						sizeof(DATAFORTHREAD));
+					
+
 					for (int i = 0; i < 10; i++) {
-						players_thrades[0].join();
+						players_thrades[0] = CreateThread(NULL, 0, &thread_play, &p_toStructWithGameObject, 0, NULL);
+						players_thrades[1] = CreateThread(NULL, 0, &thread_play, &p_toStructWithGameObject, 0, NULL);
 						writeDataInFile(game.getGameBoard(),i, game.getWinner());
 						game.resetTheGame();
 						board.clearBoard(hWnd);
