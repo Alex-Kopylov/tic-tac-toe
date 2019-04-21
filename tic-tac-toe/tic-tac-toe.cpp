@@ -7,7 +7,6 @@
 #include "Cell.h"
 #include "Game.h"
 #include <string>
-#include <fstream>
 #include <vector>
 #include <thread>
 #include <mutex>
@@ -28,59 +27,19 @@ INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 Board board;
 Game game;
 Cell cell;
-int X_wins = 0, O_wins = 0, draws = 0;
-HANDLE players_thrades[2], mutex;
+int x_wins = 0, o_wins = 0, draws = 0;
+HANDLE players_threads[2], mutex;
 
 DWORD WINAPI  thread_play(LPVOID t) {
-	//Game game = ((P_DATAFORTHREAD)lpParam)->game;
-	while (1) {
+	while (true) {
 		WaitForSingleObject(mutex, INFINITE);
-		game.autoStep();
+		game.auto_step();
 		ReleaseMutex(mutex);
-		if (game.isGameOver())
+		if (game.is_game_over())
 			return 0;
 	}
 }
 
-void writeDataInFile(std::vector<int> gameboard, int gameNumber,int winner) {
-	std::ofstream file;
-	file.open("output_file.txt", std::ios::app);
-	file << "Game № " << gameNumber+1;
-	switch (winner) {
-	case (1): 
-		file << " [O win]";
-		break;
-	case (2):
-		file << " [X win]";
-		break;
-	case (3):
-		file << " [Draw]";
-		break;
-	}
-	file << std::endl;
-	for (int i = 0; i < 9; i++) {
-		switch (gameboard[i]) {
-		case 0:
-			file << " ";
-			break;
-		case 1:
-			file << "O";
-			break;
-		case 2:
-			file << "X";
-			break;
-		}
-		
-		if(i==2||i==5||i==8)
-			file << std::endl;
-	}
-	file.close();
-	/*    ___
-	   |   |
-	   |   |
-	   |XOO|
-		‾‾‾*/
-}
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
                      _In_ LPWSTR    lpCmdLine,
@@ -125,7 +84,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 //
 //  PURPOSE: Registers the window class.
 //
-ATOM MyRegisterClass(HINSTANCE hInstance)
+ATOM MyRegisterClass(const HINSTANCE hInstance)
 {
     WNDCLASSEXW wcex;
 
@@ -138,7 +97,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     wcex.hInstance      = hInstance;
     wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_TICTACTOE));
     wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
-    wcex.hbrBackground  = (HBRUSH)GetStockObject(GRAY_BRUSH);
+    wcex.hbrBackground  = static_cast<HBRUSH>(GetStockObject(GRAY_BRUSH));
     wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_TICTACTOE);
     wcex.lpszClassName  = szWindowClass;
     wcex.hIconSm        = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
@@ -156,11 +115,11 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 //        In this function, we save the instance handle in a global variable and
 //        create and display the main program window.
 //
-BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
+BOOL InitInstance(const HINSTANCE hInstance, const int nCmdShow)
 {
    hInst = hInstance; // Store instance handle in our global variable
 
-   HWND hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+   const auto hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
       CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
 
    if (!hWnd)
@@ -187,37 +146,37 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //  WM_DESTROY  - post a quit message and return
 //
 //
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+LRESULT CALLBACK WndProc(HWND hWnd, const UINT message, const WPARAM wParam, const LPARAM lParam)
 {	
     switch (message)
     {
 		case WM_COMMAND:
 			{
-				int wmId = LOWORD(wParam);
+				const int wmId = LOWORD(wParam);
 				// Parse the menu selections:
 				switch (wmId)
 				{
 				case ID_START_GAME: {
-					HDC hdc = GetDC(hWnd);
+					const auto hdc = GetDC(hWnd);
 					board.drawCentralizedBoard(hWnd, hdc);			
-					*players_thrades = ( CreateThread(NULL, 0, thread_play, NULL, 0, NULL),
+					*players_threads = ( CreateThread(NULL, 0, thread_play, NULL, 0, NULL),
 								  CreateThread(NULL, 0, thread_play, NULL, 0, NULL));
 					mutex = CreateMutex(NULL, FALSE, NULL);
 					for (int i = 0; i < 100; i++) {
-						WaitForMultipleObjects(2, players_thrades, TRUE, INFINITE);
-						writeDataInFile(game.getGameBoard(),i, game.isGameOver());
-						game.resetTheGame();
-						board.clearBoard(hWnd);
+						WaitForMultipleObjects(2, players_threads, TRUE, INFINITE);
+						//game.write_data_in_file(i);
+						game.start_new_game(i);
+						board.clear_board(hWnd);
 					}
 
-					std::string resultSting =
+					auto result_sting =
 						"X wins: " +
-						std::to_string(game.getGameStat()[0]) + "\n" +
+						std::to_string(game.get_game_stat()[0]) + "\n" +
 						"O wins: " +
-						std::to_string(game.getGameStat()[1]) + "\n" +
+						std::to_string(game.get_game_stat()[1]) + "\n" +
 						"Draws: " +
-						std::to_string(game.getGameStat()[2]);
-					MessageBox(hWnd, std::wstring(resultSting.begin(), resultSting.end()).c_str(), L"Results", MB_OK | MB_ICONASTERISK );
+						std::to_string(game.get_game_stat()[2]);
+					MessageBox(hWnd, std::wstring(result_sting.begin(), result_sting.end()).c_str(), L"Results", MB_OK | MB_ICONASTERISK );
 					break;
 				}
 				case IDM_ABOUT:
@@ -233,24 +192,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case WM_GETMINMAXINFO: 
 			{
-				MINMAXINFO * pMinMax = (MINMAXINFO*)lParam;
-				pMinMax->ptMinTrackSize.x = CELL_SIZE * 5;
-				pMinMax->ptMinTrackSize.y = CELL_SIZE * 5;
+				const auto p_min_max = (MINMAXINFO*) lParam;
+				p_min_max->ptMinTrackSize.x = CELL_SIZE * 5;
+				p_min_max->ptMinTrackSize.y = CELL_SIZE * 5;
 			}
 			break;
 
 		case WM_PAINT:
 		{
 			PAINTSTRUCT ps;
-			HDC hdc = BeginPaint(hWnd, &ps);
+			const auto hdc = BeginPaint(hWnd, &ps);
 			board.drawCentralizedBoard(hWnd, hdc);
-			board.drawCurrentGameOnTheBoard(cell, hWnd, hdc, game.getGameBoard());
+			board.draw_current_game_on_the_board(cell, hdc, game.get_game_board());
 			EndPaint(hWnd, &ps);
 		}
 		break;
 
 		case WM_DESTROY:
-			cell.deleteBrushes();
+			cell.delete_brushes();
 			PostQuitMessage(0);
 			break;
 		default:
@@ -260,7 +219,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 }
 
 // Message handler for about box.
-INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+INT_PTR CALLBACK About(const HWND hDlg, const UINT message, const WPARAM wParam, LPARAM lParam)
 {
     UNREFERENCED_PARAMETER(lParam);
     switch (message)
@@ -275,6 +234,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
             return (INT_PTR)TRUE;
         }
         break;
+    default: ;
     }
     return (INT_PTR)FALSE;
 }

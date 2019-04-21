@@ -6,10 +6,11 @@ class Board
 public:
 	Board();
 	void drawCentralizedBoard(HWND & hWnd, HDC hdc);
-	const RECT  getRectangle();
-	void clearBoard(HWND hWnd);
-	void drawCurrentGameOnTheBoard(Cell cell, HWND hWnd, HDC hdc, std::vector<int> gameboard);
-	void drawGrid(HDC * hdc);
-	void drawLine(int x1, int y1, int x2, int y2, HDC * hdc);
-	RECT gameboardRectangle;
+	RECT  get_rectangle() const;
+	static void clear_board(HWND hWnd);
+	void draw_current_game_on_the_board(Cell cell, HDC hdc, std::vector<unsigned int> gameboard) const;
+	void draw_grid(HDC * hdc) const;
+	static void draw_line(int x1, int y1, int x2, int y2, HDC * hdc);
+private:
+	RECT gameboard_rectangle{};
 };

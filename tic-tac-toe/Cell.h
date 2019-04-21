@@ -3,14 +3,14 @@ class Cell
 {
 public:
 	Cell();
-	int getCellNumberFromPoint(HWND hWnd, int xPos, int yPos, RECT boardRect);
+	static int get_cell_number_from_point(int x_pos, int y_pos, RECT board_rect);
 	~Cell();
-	const RECT * getCellRectangle(HWND hWnd, int index, RECT boardRect);
+	static const RECT * get_cell_rectangle(int index, RECT board_rect);
 	HICON getIcon(int player_turn);
-	void deleteBrushes();
-	void markTheCell(HDC hdc,HWND hWnd, int player_turn, int xLeft, int yTop);
+	void delete_brushes() const;
+	void mark_the_cell(HDC hdc, int player_turn, int x_left, int y_top);
 
 private:
-	HICON x_icon, o_icon;
+	HICON x_icon_, o_icon_;
 };
 
