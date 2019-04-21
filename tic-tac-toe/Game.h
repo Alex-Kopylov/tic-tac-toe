@@ -11,10 +11,11 @@ public:
 	void makePlay(int index);
 	bool isThisCellEmpty(int index);
 	std::vector<int> getGameBoard();
-	int getWinner();
+	bool isGameOver();
 	void resetTheGame();
 	void autoStep();
 	int getPlayerTurn();
+	int* getGameStat();
 	~Game();
 private:
 	int player_turn = 1;
@@ -27,6 +28,7 @@ private:
 						2,5,8,
 						0,4,8,
 						2,4,6, };
+	int gameStat[3] = { 0,0,0 };
 	void randomStep();
 	std::mt19937 gen{ std::random_device()() };
 };

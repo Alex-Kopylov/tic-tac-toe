@@ -28,21 +28,16 @@ INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 Board board;
 Game game;
 Cell cell;
-
 int X_wins = 0, O_wins = 0, draws = 0;
 HANDLE players_thrades[2], mutex;
 
-typedef struct DATAFORTHREAD {
-	Game game;
-} DATAFORTHREAD, *P_DATAFORTHREAD;
-
-DWORD WINAPI  thread_play(LPVOID lpParam) {
-	Game game = ((P_DATAFORTHREAD)lpParam)->game;
+DWORD WINAPI  thread_play(LPVOID t) {
+	//Game game = ((P_DATAFORTHREAD)lpParam)->game;
 	while (1) {
 		WaitForSingleObject(mutex, INFINITE);
 		game.autoStep();
 		ReleaseMutex(mutex);
-		if (game.getWinner())
+		if (game.isGameOver())
 			return 0;
 	}
 }
@@ -204,27 +199,24 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				{
 				case ID_START_GAME: {
 					HDC hdc = GetDC(hWnd);
-					board.drawCentralizedBoard(hWnd, hdc);
-
-					P_DATAFORTHREAD p_toStructWithGameObject = (P_DATAFORTHREAD)HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY,
-						sizeof(DATAFORTHREAD));
-					
-
-					for (int i = 0; i < 10; i++) {
-						players_thrades[0] = CreateThread(NULL, 0, &thread_play, &p_toStructWithGameObject, 0, NULL);
-						players_thrades[1] = CreateThread(NULL, 0, &thread_play, &p_toStructWithGameObject, 0, NULL);
-						writeDataInFile(game.getGameBoard(),i, game.getWinner());
+					board.drawCentralizedBoard(hWnd, hdc);			
+					*players_thrades = ( CreateThread(NULL, 0, thread_play, NULL, 0, NULL),
+								  CreateThread(NULL, 0, thread_play, NULL, 0, NULL));
+					mutex = CreateMutex(NULL, FALSE, NULL);
+					for (int i = 0; i < 100; i++) {
+						WaitForMultipleObjects(2, players_thrades, TRUE, INFINITE);
+						writeDataInFile(game.getGameBoard(),i, game.isGameOver());
 						game.resetTheGame();
 						board.clearBoard(hWnd);
 					}
 
 					std::string resultSting =
 						"X wins: " +
-						std::to_string(X_wins) + "\n" +
+						std::to_string(game.getGameStat()[0]) + "\n" +
 						"O wins: " +
-						std::to_string(O_wins) + "\n" +
+						std::to_string(game.getGameStat()[1]) + "\n" +
 						"Draws: " +
-						std::to_string(draws);
+						std::to_string(game.getGameStat()[2]);
 					MessageBox(hWnd, std::wstring(resultSting.begin(), resultSting.end()).c_str(), L"Results", MB_OK | MB_ICONASTERISK );
 					break;
 				}

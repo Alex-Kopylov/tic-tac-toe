@@ -35,23 +35,25 @@ std::vector<int> Game::getGameBoard()
 	return gameboard;
 }
 
-int Game::getWinner()
+bool Game::isGameOver()
 {
 	for (int i = 0; i < 24; i += 3) {
 		if (gameboard[win_conditions[i]] != 0 &&
 			gameboard[win_conditions[i]] == gameboard[win_conditions[i + 1]] &&
 			gameboard[win_conditions[i]] == gameboard[win_conditions[i + 2]]) {
-				//draw	
-			return gameboard[win_conditions[i]]; //winner
+			
+			gameStat[gameboard[win_conditions[i]]-1]++; //winner
+			return true;
 		}
 	}
 	for (int i = 0; i < 9; i++) {
 		if (gameboard[i] == 0) {
 			
-			return 0; //no winner
+			return false; //no winner
 		}
 	}
-	return 3; //draw
+	gameStat[2]++;
+	return true; //draw
 }
 
 void Game::resetTheGame()
@@ -130,6 +132,11 @@ void Game::randomStep() {
 int Game::getPlayerTurn()
 {
 	return player_turn;
+}
+
+int* Game::getGameStat()
+{
+	return gameStat;
 }
 
 Game::~Game()
