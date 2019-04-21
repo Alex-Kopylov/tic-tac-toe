@@ -2,64 +2,62 @@
 #include "Board.h"
 #include "string"
 
-Board::Board(){
-}
 
+Board::Board()
+= default;
 
 void Board::drawCentralizedBoard(HWND & hWnd, HDC hdc)
 {		
 	
-	if (GetClientRect(hWnd, &gameboardRectangle))
+	if (GetClientRect(hWnd, &gameboard_rectangle))
 	{
-		int width = gameboardRectangle.right - gameboardRectangle.left;
-		int height = gameboardRectangle.bottom - gameboardRectangle.top;
+		const int width = gameboard_rectangle.right - gameboard_rectangle.left;
+		const int height = gameboard_rectangle.bottom - gameboard_rectangle.top;
 
 	
-		gameboardRectangle.left = (width - CELL_SIZE * 3) / 2;
-		gameboardRectangle.top = (height - CELL_SIZE * 3) / 2;
-		gameboardRectangle.right = gameboardRectangle.left + CELL_SIZE * 3;
-		gameboardRectangle.bottom = gameboardRectangle.top + CELL_SIZE * 3;
+		gameboard_rectangle.left = (width - CELL_SIZE * 3) / 2;
+		gameboard_rectangle.top = (height - CELL_SIZE * 3) / 2;
+		gameboard_rectangle.right = gameboard_rectangle.left + CELL_SIZE * 3;
+		gameboard_rectangle.bottom = gameboard_rectangle.top + CELL_SIZE * 3;
 
-		Rectangle(hdc, gameboardRectangle.left, gameboardRectangle.top, gameboardRectangle.right, gameboardRectangle.bottom);
-		
-		//FillRect(hdc, &gameboardRectangle, (HBRUSH)GetStockObject(WHITE_BRUSH));
-		drawGrid(&hdc);
-		//return TRUE;
+		Rectangle(hdc, gameboard_rectangle.left, gameboard_rectangle.top, gameboard_rectangle.right, gameboard_rectangle.bottom);
+
+		draw_grid(&hdc);
 	}
-	//SetRectEmpty(hWnd,gameboardRectangle);
-	//return FALSE;
 }
-const RECT Board::getRectangle()
- {
-	 return gameboardRectangle;
+
+RECT Board::get_rectangle() const
+{
+	 return gameboard_rectangle;
  }
 
-void Board::clearBoard(HWND hWnd)
+void Board::clear_board(const HWND hWnd)
 {
 	InvalidateRect(hWnd, NULL, TRUE);
 	UpdateWindow(hWnd);
 }
 
-void Board::drawCurrentGameOnTheBoard(Cell cell, HWND hWnd, HDC hdc, std::vector<int> gameboard)
+void Board::draw_current_game_on_the_board(Cell cell, const HDC hdc, std::vector<unsigned int> gameboard) const
 {
-	for (int i = 0; i < 9; i++) {
+	for (auto i = 0; i < 9; i++) {
 		if (gameboard[i] != 0) {
-			int cell_xLeft = cell.getCellRectangle(hWnd, i, getRectangle())->left;
-			int cell_yTop = cell.getCellRectangle(hWnd, i, getRectangle())->top;
-			cell.markTheCell(hdc, hWnd, gameboard[i], cell_xLeft, cell_yTop);
+			const int cell_x_left = cell.get_cell_rectangle(i, get_rectangle())->left;
+			const int cell_y_top = cell.get_cell_rectangle(i, get_rectangle())->top;
+			cell.mark_the_cell(hdc, gameboard[i], cell_x_left, cell_y_top);
 		}
 	}
 }
 
- void Board::drawGrid(HDC * hdc) {
-	 for (int i = 0; i < 4; i++) {
+ void Board::draw_grid(HDC * hdc) const
+ {
+	 for (auto i = 0; i < 4; i++) {
 		 //Draw vertical lines
-		 drawLine(gameboardRectangle.left + CELL_SIZE * i, gameboardRectangle.top, gameboardRectangle.left + CELL_SIZE * i, gameboardRectangle.bottom, hdc);
+		 draw_line(gameboard_rectangle.left + CELL_SIZE * i, gameboard_rectangle.top, gameboard_rectangle.left + CELL_SIZE * i, gameboard_rectangle.bottom, hdc);
 		 //Draw horizontal lines
-		 drawLine(gameboardRectangle.left, gameboardRectangle.top + CELL_SIZE * i, gameboardRectangle.right, gameboardRectangle.top + CELL_SIZE * i, hdc);
+		 draw_line(gameboard_rectangle.left, gameboard_rectangle.top + CELL_SIZE * i, gameboard_rectangle.right, gameboard_rectangle.top + CELL_SIZE * i, hdc);
 	 }
  }
- void Board::drawLine(int x1, int y1, int x2, int y2, HDC * hdc) {
+ void Board::draw_line(const int x1, const int y1, const int x2, const int y2, HDC * hdc) {
 	 MoveToEx(*hdc, x1, y1, NULL);
 	 LineTo(*hdc, x2, y2);
  }
