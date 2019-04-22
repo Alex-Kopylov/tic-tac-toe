@@ -164,7 +164,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, const UINT message, const WPARAM wParam, con
 					mutex = CreateMutex(NULL, FALSE, NULL);
 					for (int i = 0; i < 100; i++) {
 						WaitForMultipleObjects(2, players_threads, TRUE, INFINITE);
-						//game.write_data_in_file(i);
 						game.start_new_game(i);
 						board.clear_board(hWnd);
 					}

@@ -42,7 +42,7 @@ int Cell::get_cell_number_from_point(int x_pos, int y_pos, RECT board_rect)
 	return -1; //outside of gameboard
 }
 
-const RECT * Cell::get_cell_rectangle(const int index, const RECT board_rect)
+RECT * Cell::get_cell_rectangle(const int index, const RECT board_rect)
 {
 	const auto y = index / 3; // row number
 	const auto x = index % 3; // column number

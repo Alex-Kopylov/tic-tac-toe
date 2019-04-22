@@ -4,13 +4,11 @@
 
 Game::Game()
 {
-	file_.open("output_file.txt", std::ios::app);
 }
 
 void Game::next_turn()
 {
 	player_turn_ = (player_turn_ == 1) ? 2 : 1;
-
 }
 
 void Game::make_play(const int index)
@@ -32,11 +30,11 @@ std::vector<unsigned int> Game::get_game_board() const
 bool Game::is_game_over()
 {
 	for (auto i = 0; i < 24; i += 3) {
-		if (gameboard_[win_conditions[i]] != 0 &&
-			gameboard_[win_conditions[i]] == gameboard_[win_conditions[1 + i]] &&
-			gameboard_[win_conditions[i]] == gameboard_[win_conditions[2 + i]]) {
-			keep_game_board_and_start_thread(gameboard_[win_conditions[i]]);
-			//game_stat_[gameboard_[win_conditions[i]]-1]++; //winner
+		if (gameboard_[win_conditions_[i]] != 0 &&
+			gameboard_[win_conditions_[i]] == gameboard_[win_conditions_[1 + i]] &&
+			gameboard_[win_conditions_[i]] == gameboard_[win_conditions_[2 + i]]) {
+			keep_game_board_and_start_thread(gameboard_[win_conditions_[i]]);
+			//game_stat_[gameboard_[win_conditions_[i]]-1]++; //winner
 			return true;
 		}
 	}
@@ -45,14 +43,14 @@ bool Game::is_game_over()
 			return false; //no winner
 		}
 	}
-	//game_stat_[2]++;
+	game_stat_[2]++;
 	keep_game_board_and_start_thread(2);
 	return true; //draw
 }
 
-void Game::start_new_game(const unsigned int game_number) 
+void Game::start_new_game(const unsigned short int game_number) 
 {
-	this->game_number_ = game_number;
+	mystruct->game_number_ = game_number;
 	player_turn_ = 1;
 	std::fill(gameboard_.begin(), gameboard_.end(), 0);
 }
@@ -60,23 +58,23 @@ void Game::start_new_game(const unsigned int game_number)
 void Game::auto_step()
 {
 	for (auto i = 0; i < 24; i += 3) {
-		std::vector<unsigned int> win_condition = { gameboard_[win_conditions[i]], gameboard_[win_conditions[i + 1]], gameboard_[win_conditions[i + 2]] };
+		std::vector<unsigned int> win_condition = { gameboard_[win_conditions_[i]], gameboard_[win_conditions_[i + 1]], gameboard_[win_conditions_[2 + i]] };
 		if (std::count(win_condition.begin(), win_condition.end(), 0) < 2)
 		{
 			//Try to not to fail
 			if (win_condition[0] == 0)
 				if (win_condition[1] == win_condition[2] && win_condition[1] != get_player_turn()) {
-					make_play(win_conditions[i]);
+					make_play(win_conditions_[i]);
 					return;
 				}
 			if (win_condition[1] == 0)
 				if (win_condition[0] == win_condition[2] && win_condition[0] != get_player_turn()) {
-					make_play(win_conditions[i + 1]);
+					make_play(win_conditions_[i + 1]);
 					return;
 				}
 			if (win_condition[2] == 0)
 				if (win_condition[0] == win_condition[1] && win_condition[0] != get_player_turn()) {
-					make_play(win_conditions[i + 2]);
+					make_play(win_conditions_[i + 2]);
 					return;
 				}
 		}
@@ -84,16 +82,12 @@ void Game::auto_step()
 	random_step();
 }
 
-void Game::keep_game_board_and_start_thread(const unsigned short int winner) const
+void Game::keep_game_board_and_start_thread(const unsigned short int winner)
 {
-	typedef struct buffer {
-		std::vector<unsigned int> gameboard_ = this->gameboard_;
-		unsigned short int buffer_winner_= 1;
-	} buffer;
-
-	static buffer params;
-
-	auto thread = CreateThread(NULL, 0, write_data_in_file, (void*)&params, 0, NULL);
+	WaitForSingleObject(thread_for_writing_in_file, INFINITE);
+	mystruct->gameboard_ = gameboard_;
+	mystruct->buffer_winner = winner;
+	thread_for_writing_in_file = CreateThread(NULL, 0, write_data_in_file, (LPVOID)mystruct, 0, NULL);
 }
 
 void Game::random_step() {
@@ -119,11 +113,14 @@ unsigned short* Game::get_game_stat()
 	return game_stat_;
 }
 
-DWORD WINAPI Game::write_data_in_file(void * param) {
-	buffer * ptr = (buffer*)param;
+DWORD WINAPI Game::write_data_in_file(LPVOID lparam) {
+	auto ptr = static_cast<myStruct*>(lparam);
 
-	file_ << "Game № " << ptr->gameboard_crre+1;
-	switch (buffer_winner_) {
+	std::ofstream file_;
+	file_.open("output_file.txt", std::ios::app);
+
+	file_ << "Game № " << ptr->game_number_;
+	switch (ptr->buffer_winner) {
 	case (1): 
 		file_ << " [O win]";
 		break;
@@ -137,7 +134,7 @@ DWORD WINAPI Game::write_data_in_file(void * param) {
 	}
 	file_ << std::endl;
 	for (auto i = 0; i < 9; i++) {
-		switch (buffer_gameboard_[i]) {
+		switch (ptr->gameboard_[i]) {
 		case 0:
 			file_ << " ";
 			break;
@@ -158,9 +155,10 @@ DWORD WINAPI Game::write_data_in_file(void * param) {
 	   |   |
 	   |XOO|
 		‾‾‾*/
+	file_.close();
 	return 0;
 }
 Game::~Game()
 {
-	file_.close();
+	
 }
