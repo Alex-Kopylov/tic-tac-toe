@@ -8,6 +8,7 @@
 class Game
 {
 public:
+	struct buffer_struct;
 	Game();
 	void next_turn();
 	void make_play(int index);
@@ -18,8 +19,11 @@ public:
 	void auto_step();
 	unsigned int get_player_turn() const;
 	unsigned short* get_game_stat();
+	short int get_winner() const;
+	buffer_struct* keep_game_board_in_struct() const;
 	~Game();
 private:
+	unsigned short int game_number;
 	unsigned short int player_turn_ = 1;
 	std::vector<unsigned int> gameboard_ =  std::vector<unsigned int>(9,0);
 	std::vector<unsigned short int> win_conditions_ = { 0,1,2, //24 elements
@@ -31,17 +35,14 @@ private:
 						0,4,8,
 						2,4,6, };
 	unsigned short int game_stat_[3] = { 0,0,0 };
-	void keep_game_board_and_start_thread(const unsigned short int winner);
 	void random_step();
 	std::mt19937 gen_{ std::random_device()() };
-	static DWORD WINAPI write_data_in_file(PVOID lparam);
-
-	struct myStruct {
+	short int winner = -1;;
+	struct buffer_struct {
 		std::vector<unsigned int> gameboard_;
-		unsigned short int buffer_winner;
-		unsigned short int game_number_;
-	};
-	myStruct* mystruct = new myStruct();
-	HANDLE thread_for_writing_in_file, mutex;
+		unsigned short int buffer_winner{};
+		unsigned short int game_number_{};
+		
+	} ;
 };
 
