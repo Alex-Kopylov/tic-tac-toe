@@ -4,6 +4,7 @@
 
 Game::Game()
 {
+	
 }
 
 void Game::next_turn()
@@ -31,10 +32,10 @@ bool Game::is_game_over()
 {
 	for (auto i = 0; i < 24; i += 3) {
 		if (gameboard_[win_conditions_[i]] != 0 &&
-			gameboard_[win_conditions_[i]] == gameboard_[win_conditions_[1 + i]] &&
-			gameboard_[win_conditions_[i]] == gameboard_[win_conditions_[2 + i]]) {
-			keep_game_board_and_start_thread(gameboard_[win_conditions_[i]]);
-			//game_stat_[gameboard_[win_conditions_[i]]-1]++; //winner
+			gameboard_[win_conditions_[i]] == gameboard_[win_conditions_[i + 1]] &&
+			gameboard_[win_conditions_[i]] == gameboard_[win_conditions_[i + 2]]) {
+			winner = gameboard_[win_conditions_[i]];
+			game_stat_[gameboard_[win_conditions_[i]]]++; //winner
 			return true;
 		}
 	}
@@ -44,13 +45,14 @@ bool Game::is_game_over()
 		}
 	}
 	game_stat_[2]++;
-	keep_game_board_and_start_thread(2);
+	winner = 2;
 	return true; //draw
 }
 
-void Game::start_new_game(const unsigned short int game_number) 
+void Game::start_new_game(const unsigned short int game_number)
 {
-	mystruct->game_number_ = game_number;
+	winner = -1;
+	this->game_number = game_number;
 	player_turn_ = 1;
 	std::fill(gameboard_.begin(), gameboard_.end(), 0);
 }
@@ -82,12 +84,13 @@ void Game::auto_step()
 	random_step();
 }
 
-void Game::keep_game_board_and_start_thread(const unsigned short int winner)
+Game::buffer_struct* Game::keep_game_board_in_struct() const
 {
-	WaitForSingleObject(thread_for_writing_in_file, INFINITE);
-	mystruct->gameboard_ = gameboard_;
-	mystruct->buffer_winner = winner;
-	thread_for_writing_in_file = CreateThread(NULL, 0, write_data_in_file, (LPVOID)mystruct, 0, NULL);
+	auto my_struct = new buffer_struct();
+	my_struct->gameboard_ = gameboard_;
+	my_struct->buffer_winner = winner;
+	my_struct->game_number_ = this->game_number;
+	return my_struct;
 }
 
 void Game::random_step() {
@@ -113,52 +116,11 @@ unsigned short* Game::get_game_stat()
 	return game_stat_;
 }
 
-DWORD WINAPI Game::write_data_in_file(LPVOID lparam) {
-	auto ptr = static_cast<myStruct*>(lparam);
-
-	std::ofstream file_;
-	file_.open("output_file.txt", std::ios::app);
-
-	file_ << "Game № " << ptr->game_number_;
-	switch (ptr->buffer_winner) {
-	case (1): 
-		file_ << " [O win]";
-		break;
-	case (2):
-		file_ << " [X win]";
-		break;
-	case (3):
-		file_ << " [Draw]";
-		break;
-	default: ;
-	}
-	file_ << std::endl;
-	for (auto i = 0; i < 9; i++) {
-		switch (ptr->gameboard_[i]) {
-		case 0:
-			file_ << " ";
-			break;
-		case 1:
-			file_ << "O";
-			break;
-		case 2:
-			file_ << "X";
-			break;
-		default: ;
-		}
-		
-		if(i==2||i==5||i==8)
-			file_ << std::endl;
-	}
-	/*    ___
-	   |   |
-	   |   |
-	   |XOO|
-		‾‾‾*/
-	file_.close();
-	return 0;
+short int Game::get_winner() const
+{
+	return winner;
 }
+
 Game::~Game()
 {
-	
 }
