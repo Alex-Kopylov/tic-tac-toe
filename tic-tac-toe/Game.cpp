@@ -35,7 +35,6 @@ bool Game::is_game_over()
 			gameboard_[win_conditions_[i]] == gameboard_[win_conditions_[i + 1]] &&
 			gameboard_[win_conditions_[i]] == gameboard_[win_conditions_[i + 2]]) {
 			winner = gameboard_[win_conditions_[i]];
-			game_stat_[gameboard_[win_conditions_[i]]]++; //winner
 			return true;
 		}
 	}
@@ -44,15 +43,14 @@ bool Game::is_game_over()
 			return false; //no winner
 		}
 	}
-	game_stat_[2]++;
-	winner = 2;
+
+	winner = 0;
 	return true; //draw
 }
 
-void Game::start_new_game(const unsigned short int game_number)
+void Game::start_new_game()
 {
 	winner = -1;
-	this->game_number = game_number;
 	player_turn_ = 1;
 	std::fill(gameboard_.begin(), gameboard_.end(), 0);
 }
@@ -84,12 +82,15 @@ void Game::auto_step()
 	random_step();
 }
 
-Game::buffer_struct* Game::keep_game_board_in_struct() const
+Game::buffer_struct* Game::keep_game_board_in_struct()
 {
+	
 	auto my_struct = new buffer_struct();
+	my_struct->game_number_ = this->game_number;
 	my_struct->gameboard_ = gameboard_;
 	my_struct->buffer_winner = winner;
-	my_struct->game_number_ = this->game_number;
+	game_stat_[winner]++;
+	game_number++;
 	return my_struct;
 }
 

@@ -1,0 +1,160 @@
+Game ¹ 1 [X win]
+OOX
+OXO
+XXO
+Game ¹ 2 [X win]
+XOO
+OXX
+OOX
+Game ¹ 3 [Draw]
+XOO
+OOX
+XXO
+Game ¹ 4 [Draw]
+OOX
+XXO
+OXO
+Game ¹ 5 [Draw]
+OXX
+XOO
+OOX
+Game ¹ 6 [Draw]
+OOX
+XOO
+OXX
+Game ¹ 7 [Draw]
+OOX
+XXO
+OXO
+Game ¹ 8 [Draw]
+XOO
+OOX
+XXO
+Game ¹ 9 [Draw]
+XOX
+OXO
+OXO
+Game ¹ 10 [O win]
+XXO
+XOO
+OOX
+Game ¹ 11 [O win]
+XOO
+OOX
+OXX
+Game ¹ 12 [Draw]
+OXO
+XOO
+XOX
+Game ¹ 13 [Draw]
+OXO
+OOX
+XOX
+Game ¹ 14 [Draw]
+XOX
+OXO
+OXO
+Game ¹ 15 [X win]
+XOX
+OXO
+XOO
+Game ¹ 16 [X win]
+OOX
+XXO
+XOO
+Game ¹ 17 [O win]
+XXO
+XOO
+OOX
+Game ¹ 18 [Draw]
+XOX
+OOX
+OXO
+Game ¹ 19 [O win]
+OXO
+OXX
+OOX
+Game ¹ 20 [Draw]
+OXX
+XOO
+OOX
+Game ¹ 21 [Draw]
+XOX
+OOX
+OXO
+Game ¹ 22 [Draw]
+XOX
+OXO
+OXO
+Game ¹ 23 [Draw]
+XXO
+OOX
+XOO
+Game ¹ 24 [X win]
+OOX
+OXO
+XOX
+Game ¹ 25 [Draw]
+XOX
+OOX
+OXO
+Game ¹ 26 [Draw]
+XOO
+OXX
+XOO
+Game ¹ 27 [Draw]
+XOO
+OXX
+XOO
+Game ¹ 28 [Draw]
+XOO
+OXX
+OXO
+Game ¹ 29 [Draw]
+OXO
+XOO
+XOX
+Game ¹ 30 [Draw]
+OOX
+XOO
+OXX
+Game ¹ 31 [O win]
+OXO
+XOX
+OOX
+Game ¹ 32 [Draw]
+XOO
+OXX
+OXO
+Game ¹ 33 [X win]
+OOX
+OXO
+XOX
+Game ¹ 34 [Draw]
+XOX
+XOO
+OXO
+Game ¹ 35 [X win]
+XOO
+XXO
+OOX
+Game ¹ 36 [Draw]
+OXO
+OXO
+XOX
+Game ¹ 37 [X win]
+OOX
+OXX
+XOO
+Game ¹ 38 [Draw]
+XXO
+OOX
+XOO
+Game ¹ 39 [Draw]
+XOO
+OXX
+OXO
+Game ¹ 40 [O win]
+XOO
+XOX
+OXO
