@@ -28,24 +28,24 @@ Board board;
 Game game;
 Cell cell;
 int x_wins = 0, o_wins = 0, draws = 0;
-HANDLE players_threads[2], players_mutex;
-HANDLE write_in_file_thread, write_in_file_mutex ;
+std::mutex players_mutex;
 std::ofstream file_;
-DWORD WINAPI write_data_in_file(LPVOID lparam) {
-	if (game.get_winner()==-1)
-		return 0;
 
-	//WaitForSingleObject(write_in_file_mutex, INFINITE);
+std::thread* write_in_file_thread = nullptr;
+std::thread* player_thread = nullptr;
+void write_data_in_file() {
+
+
 	auto my_struct = game.keep_game_board_in_struct();
-	file_ << "Game № " << my_struct->game_number_+1;
+	file_ << "Game № " << my_struct->game_number_;
 	switch (my_struct->buffer_winner) {
-	case (0):
+	case (2):
 		file_ << " [X win]";
 		break;
 	case (1):
 		file_ <<" [O win]";
 		break;
-	case (2):
+	case (0):
 		file_ << " [Draw]";
 		break;
 	default:;
@@ -68,23 +68,17 @@ DWORD WINAPI write_data_in_file(LPVOID lparam) {
 		if (i == 2 || i == 5 || i == 8)
 			file_ << std::endl;
 	}
-	/*    ___
-	   |   |
-	   |   |
-	   |XOO|
-		‾‾‾*/
-
-	//ReleaseMutex(write_in_file_mutex);
-	return 0;
 }
 
-DWORD WINAPI  thread_play(LPVOID t) {
+void  thread_play() {
 	while (true) {
-		WaitForSingleObject(players_mutex, INFINITE);
 		game.auto_step();
-		ReleaseMutex(players_mutex);
-		if (game.is_game_over())
-			return 0;
+		if (game.is_game_over()) {
+			return;
+		}
+		
+		std::thread next_player_thread(thread_play);
+		next_player_thread.join();
 	}
 }
 
@@ -207,26 +201,30 @@ LRESULT CALLBACK WndProc(HWND hWnd, const UINT message, const WPARAM wParam, con
 				case ID_START_GAME: {
 					const auto hdc = GetDC(hWnd);
 					board.drawCentralizedBoard(hWnd, hdc);			
-					file_.open("output_file.txt", std::ios::ate);
-					players_mutex = CreateMutex(NULL, FALSE, NULL);
-					for (int i = 0; i < 10; i++){
-						WaitForSingleObject(write_in_file_thread, INFINITE);
-						game.start_new_game(i);
-						*players_threads = (CreateThread(NULL, 0, thread_play, NULL, 0, NULL),
-							CreateThread(NULL, 0, thread_play, NULL, 0, NULL));
-						WaitForMultipleObjects(2, players_threads, TRUE, INFINITE);
-						write_in_file_thread = (CreateThread(NULL, 0, write_data_in_file, NULL, 0, NULL));
+					file_.open("output_file.txt", std::ios::app);
+					
+					
+					for (auto i = 0; i < 10; i++){
+
+						if(write_in_file_thread != nullptr)
+							write_in_file_thread->join();
+
+						game.start_new_game();
+						player_thread = new std::thread(thread_play);
+						player_thread->join();
+						write_in_file_thread = new std::thread(write_data_in_file);
 						board.clear_board(hWnd);
 					}
 
 					auto result_sting =
 						"X wins: " +
-						std::to_string(game.get_game_stat()[0]) + "\n" +
+						std::to_string(game.get_game_stat()[2]) + "\n" +
 						"O wins: " +
 						std::to_string(game.get_game_stat()[1]) + "\n" +
 						"Draws: " +
-						std::to_string(game.get_game_stat()[2]);
+						std::to_string(game.get_game_stat()[0]);
 					file_.close();
+
 					MessageBox(hWnd, std::wstring(result_sting.begin(), result_sting.end()).c_str(), L"Results", MB_OK | MB_ICONASTERISK );
 					break;
 				}
