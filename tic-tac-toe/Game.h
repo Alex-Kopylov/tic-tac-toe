@@ -20,7 +20,8 @@ public:
 	unsigned int get_player_turn() const;
 	unsigned short* get_game_stat();
 	short int get_winner() const;
-	buffer_struct* keep_game_board_in_struct();
+	void keep_game_board_in_struct();
+	buffer_struct& get_buffer_struct();
 	~Game();
 private:
 	unsigned short int game_number = 1;
@@ -44,5 +45,6 @@ private:
 		unsigned short int game_number_{};
 		
 	} ;
+	buffer_struct my_buffer_struct;
 };
 

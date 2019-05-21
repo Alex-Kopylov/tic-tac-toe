@@ -27,59 +27,55 @@ INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 Board board;
 Game game;
 Cell cell;
-int x_wins = 0, o_wins = 0, draws = 0;
-std::mutex players_mutex;
-std::ofstream file_;
+unsigned short int x_wins = 0, o_wins = 0, draws = 0;
+std::ofstream output_file;
 
 std::thread* write_in_file_thread = nullptr;
 std::thread* player_thread = nullptr;
+std::thread* redraw_board_thread = nullptr;
 void write_data_in_file() {
-
-
-	auto my_struct = game.keep_game_board_in_struct();
-	file_ << "Game № " << my_struct->game_number_;
-	switch (my_struct->buffer_winner) {
+	game.keep_game_board_in_struct();
+	auto my_struct = game.get_buffer_struct();
+	output_file << "Game № " << my_struct.game_number_;
+	switch (my_struct.buffer_winner) {
 	case (2):
-		file_ << " [X win]";
+		output_file << " [X win]";
 		break;
 	case (1):
-		file_ <<" [O win]";
+		output_file <<" [O win]";
 		break;
 	case (0):
-		file_ << " [Draw]";
+		output_file << " [Draw]";
 		break;
 	default:;
 	}
-	file_ << std::endl;
+	output_file << std::endl;
 	for (auto i = 0; i < 9; i++) {
-		switch (my_struct->gameboard_[i]) {
+		switch (my_struct.gameboard_[i]) {
 		case 0:
-			file_ << " ";
+			output_file << " ";
 			break;
 		case 1:
-			file_ << "O";
+			output_file << "O";
 			break;
 		case 2:
-			file_ << "X";
+			output_file << "X";
 			break;
 		default:;
 		}
 
 		if (i == 2 || i == 5 || i == 8)
-			file_ << std::endl;
+			output_file << std::endl;
 	}
 }
 
 void  thread_play() {
-	while (true) {
-		game.auto_step();
-		if (game.is_game_over()) {
-			return;
-		}
-		
-		std::thread next_player_thread(thread_play);
-		next_player_thread.join();
+	game.auto_step();
+	if (game.is_game_over()) {
+		return;
 	}
+	std::thread next_player_thread(thread_play);
+	next_player_thread.join();
 }
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
@@ -199,11 +195,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, const UINT message, const WPARAM wParam, con
 				switch (wmId)
 				{
 				case ID_START_GAME: {
-					const auto hdc = GetDC(hWnd);
-					board.drawCentralizedBoard(hWnd, hdc);			
-					file_.open("output_file.txt", std::ios::app);
-					
-					
+					output_file.open("output_file.txt", std::ios::app);
+				
 					for (auto i = 0; i < 10; i++){
 
 						if(write_in_file_thread != nullptr)
@@ -213,7 +206,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, const UINT message, const WPARAM wParam, con
 						player_thread = new std::thread(thread_play);
 						player_thread->join();
 						write_in_file_thread = new std::thread(write_data_in_file);
-						board.clear_board(hWnd);
+
+						board.redraw_board(hWnd);
 					}
 
 					auto result_sting =
@@ -223,7 +217,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, const UINT message, const WPARAM wParam, con
 						std::to_string(game.get_game_stat()[1]) + "\n" +
 						"Draws: " +
 						std::to_string(game.get_game_stat()[0]);
-					file_.close();
+					
+					output_file.close();
 
 					MessageBox(hWnd, std::wstring(result_sting.begin(), result_sting.end()).c_str(), L"Results", MB_OK | MB_ICONASTERISK );
 					break;
@@ -251,7 +246,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, const UINT message, const WPARAM wParam, con
 		{
 			PAINTSTRUCT ps;
 			const auto hdc = BeginPaint(hWnd, &ps);
-			board.drawCentralizedBoard(hWnd, hdc);
+			board.draw_centralized_board(hWnd, hdc);
 			board.draw_current_game_on_the_board(cell, hdc, game.get_game_board());
 			EndPaint(hWnd, &ps);
 		}

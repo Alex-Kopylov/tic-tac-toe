@@ -82,18 +82,18 @@ void Game::auto_step()
 	random_step();
 }
 
-Game::buffer_struct* Game::keep_game_board_in_struct()
+void Game::keep_game_board_in_struct()
 {
-	
-	auto my_struct = new buffer_struct();
-	my_struct->game_number_ = this->game_number;
-	my_struct->gameboard_ = gameboard_;
-	my_struct->buffer_winner = winner;
+	my_buffer_struct.game_number_ = this->game_number;
+	my_buffer_struct.gameboard_ = gameboard_;
+	my_buffer_struct.buffer_winner = winner;
 	game_stat_[winner]++;
 	game_number++;
-	return my_struct;
 }
-
+Game::buffer_struct& Game::get_buffer_struct()
+{
+	return my_buffer_struct;
+}
 void Game::random_step() {
 	std::vector<int> empty_cells;
 	for (auto i = 0; i < 9; i++) {
