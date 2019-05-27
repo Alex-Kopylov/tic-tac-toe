@@ -5,7 +5,7 @@ class Board
 {
 public:
 	Board();
-	void draw_centralized_board(HWND & hWnd, HDC hdc);
+	void drawCentralizedBoard(HWND & hWnd, HDC hdc);
 	RECT  get_rectangle() const;
 	static void redraw_board(HWND hWnd);
 	void draw_current_game_on_the_board(Cell cell, HDC hdc, std::vector<unsigned int> gameboard) const;

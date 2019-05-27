@@ -6,7 +6,7 @@
 Board::Board()
 = default;
 
-void Board::draw_centralized_board(HWND & hWnd, HDC hdc)
+void Board::drawCentralizedBoard(HWND & hWnd, HDC hdc)
 {		
 	
 	if (GetClientRect(hWnd, &gameboard_rectangle))
@@ -48,7 +48,7 @@ void Board::draw_current_game_on_the_board(Cell cell, const HDC hdc, std::vector
 	}
 }
 
-void Board::draw_grid(HDC * hdc) const
+ void Board::draw_grid(HDC * hdc) const
  {
 	 for (auto i = 0; i < 4; i++) {
 		 //Draw vertical lines
