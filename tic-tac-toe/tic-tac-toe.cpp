@@ -7,10 +7,9 @@
 #include "Cell.h"
 #include "Game.h"
 #include <string>
-#include <vector>
 #include <thread>
 #include <mutex>
-#include "windowsx.h" // Buttun mouse handler
+#include "windowsx.h"
 
 #define MAX_LOADSTRING 100
 // Global Variables:
@@ -27,22 +26,16 @@ INT_PTR CALLBACK    About(HWND, UINT, WPARAM, LPARAM);
 Board board;
 Game game;
 Cell cell;
-int x_wins = 0, o_wins = 0, draws = 0;
+
 std::ofstream file_;
 
-HANDLE write_in_file_thread = nullptr;
 HANDLE player_threads[2];
 HANDLE players_mutex = CreateMutex(NULL, FALSE, NULL);
 HANDLE game_is_ended_event = CreateEvent(NULL, TRUE, FALSE, NULL);
-HANDLE writing_is_ended_event = CreateEvent(NULL, TRUE, FALSE, NULL); 
 HANDLE new_game_event = CreateEvent(NULL, TRUE, FALSE, NULL);
 bool thread_players_flag = true;
-DWORD WINAPI write_data_in_file(LPVOID lparam) {
-	while (thread_players_flag) {
-		WaitForSingleObject(game_is_ended_event, INFINITE);
-		ResetEvent(writing_is_ended_event);
+void write_data_in_file() {
 		auto my_struct = game.keep_game_board_in_struct();
-		SetEvent(writing_is_ended_event);
 		file_ << "Game № " << my_struct->game_number_;
 		switch (my_struct->buffer_winner) {
 		case (2):
@@ -74,23 +67,18 @@ DWORD WINAPI write_data_in_file(LPVOID lparam) {
 			if (i == 2 || i == 5 || i == 8)
 				file_ << std::endl;
 		}
-		WaitForSingleObject(new_game_event, INFINITE);
-	}
-	return 0;
 }
 
 DWORD WINAPI  thread_play(LPVOID lparam) {
 	while (thread_players_flag) {
 		WaitForSingleObject(new_game_event, INFINITE);
-		ResetEvent(new_game_event);
 		while (!game.is_game_over()) {
 			WaitForSingleObject(players_mutex, INFINITE);
 				game.auto_step();
 			ReleaseMutex(players_mutex);
 		}
-		//ResetEvent(new_game_event);
+		ResetEvent(new_game_event);
 		SetEvent(game_is_ended_event);
-		WaitForSingleObject(writing_is_ended_event, INFINITE);
 	}
 	return 0;
 }
@@ -120,11 +108,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
     MSG msg;
 
     // Main message loop:
-    while (GetMessage(&msg, nullptr, 0, 0))
+    while (GetMessage(&msg, NULL, 0, 0))
     {
         if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
         {
-            TranslateMessage(&msg);
+            //TranslateMessage(&msg);
             DispatchMessage(&msg);
         }
     }
@@ -151,7 +139,7 @@ ATOM MyRegisterClass(const HINSTANCE hInstance)
     wcex.cbWndExtra     = 0;
     wcex.hInstance      = hInstance;
     wcex.hIcon          = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_TICTACTOE));
-    wcex.hCursor        = LoadCursor(nullptr, IDC_ARROW);
+    wcex.hCursor        = LoadCursor(NULL, IDC_ARROW);
     wcex.hbrBackground  = static_cast<HBRUSH>(GetStockObject(GRAY_BRUSH));
     wcex.lpszMenuName   = MAKEINTRESOURCEW(IDC_TICTACTOE);
     wcex.lpszClassName  = szWindowClass;
@@ -175,7 +163,7 @@ BOOL InitInstance(const HINSTANCE hInstance, const int nCmdShow)
    hInst = hInstance; // Store instance handle in our global variable
 
    const auto hWnd = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
+      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
 
    if (!hWnd)
    {
@@ -211,27 +199,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, const UINT message, const WPARAM wParam, con
 				// Parse the menu selections:
 				switch (wmId)
 				{
-				case ID_START_GAME: {
-					const auto hdc = GetDC(hWnd);
-					board.drawCentralizedBoard(hWnd, hdc);			
-					file_.open("output_file.txt", std::ios::app);
+				case ID_START_GAME: {		
+					file_.open("output_file.txt", std::ios::trunc);
 					thread_players_flag = true;
-					write_in_file_thread = CreateThread(NULL, 0, write_data_in_file, NULL, 0, NULL);
 					player_threads[0] = CreateThread(NULL, 0, thread_play, NULL, 0, NULL);
 					player_threads[1] = CreateThread(NULL, 0, thread_play, NULL, 0, NULL);
 					
-
-					for (int i = 0; i < 50; i++){
+					for (int i = 0; i < 1000; i++){
+						ResetEvent(game_is_ended_event);
 						game.start_new_game();
 						SetEvent(new_game_event);
-						ResetEvent(game_is_ended_event);
-						//WaitForMultipleObjects(2, (&game_is_ended_event, &writing_is_ended_event), TRUE, INFINITE);
 						WaitForSingleObject(game_is_ended_event, INFINITE);
-						WaitForSingleObject(writing_is_ended_event, INFINITE);
+						write_data_in_file();
 						board.redraw_board(hWnd);
 					}
+					SetEvent(new_game_event); //set event to signal to quit player's threads. 
 					thread_players_flag = false;
-					//WaitForMultipleObjects(3, ( player_threads, &write_in_file_thread ), TRUE, INFINITE);
 					auto result_sting =
 						"X wins: " +
 						std::to_string(game.get_game_stat()[2]) + "\n" +
