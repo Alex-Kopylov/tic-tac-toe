@@ -213,8 +213,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, const UINT message, const WPARAM wParam, con
 						write_data_in_file();
 						board.redraw_board(hWnd);
 					}
-					SetEvent(new_game_event); //set event to signal to quit player's threads. 
 					thread_players_flag = false;
+					SetEvent(new_game_event); //set event to signal to quit player's threads. 
 					auto result_sting =
 						"X wins: " +
 						std::to_string(game.get_game_stat()[2]) + "\n" +
